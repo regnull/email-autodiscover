@@ -145,6 +145,8 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to parse config file")
 	}
 
+	log.Debug().Interface("config", templateArgs).Msg("got config")
+
 	server := NewServer(templateArgs)
 	http.HandleFunc("/mail/config-v1.1.xml", server.HandleThunderbirdConfig)
 	http.HandleFunc("/email.mobileconfig", server.HandleIOSConfig)
