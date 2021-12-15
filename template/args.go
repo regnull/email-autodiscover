@@ -6,6 +6,6 @@ type Args struct {
 	ImapHost      string `yaml:"imap-host"`
 	ImapPort      int    `yaml:"imap-port"`
 	SmtpHost      string `yaml:"smtp-host"`
-	SmtpPort      int    `yaml:"smtp-port`
+	SmtpPort      int    `yaml:"smtp-port"`
 	Email         string // This one is populated from the request.
 }
