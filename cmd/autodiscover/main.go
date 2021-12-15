@@ -12,6 +12,7 @@ import (
 	"github.com/regnull/email-autodiscover/template"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -20,10 +21,11 @@ const (
 )
 
 type CmdArgs struct {
-	HttpPort  int
-	HttpsPort int
-	CertFile  string
-	KeyFile   string
+	HttpPort   int
+	HttpsPort  int
+	CertFile   string
+	KeyFile    string
+	ConfigFile string
 }
 
 type Server struct {
@@ -124,15 +126,23 @@ func main() {
 	flag.IntVar(&args.HttpsPort, "https-port", HTTPS_PORT, "HTTPS port")
 	flag.StringVar(&args.CertFile, "cert-file", "", "certificate file")
 	flag.StringVar(&args.KeyFile, "key-file", "", "key file")
+	flag.StringVar(&args.ConfigFile, "config", "", "config file")
 	flag.Parse()
 
-	templateArgs := &template.Args{
-		EmailProvider: "ubikom.cc",
-		Domain:        "ubikom.cc",
-		ImapHost:      "imap.ubikom.cc",
-		ImapPort:      993,
-		SmtpHost:      "smtp.ubikom.cc",
-		SmtpPort:      465,
+	if args.ConfigFile == "" {
+		log.Fatal().Msg("--config-file must be specified")
+	}
+
+	log.Info().Str("config-file", args.ConfigFile).Msg("using config file")
+	config, err := ioutil.ReadFile(args.ConfigFile)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to load config file")
+	}
+
+	templateArgs := &template.Args{}
+	err = yaml.Unmarshal(config, templateArgs)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse config file")
 	}
 
 	server := NewServer(templateArgs)
